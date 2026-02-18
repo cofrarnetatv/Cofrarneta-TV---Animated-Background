@@ -12,7 +12,10 @@
             --neon-yellow: #FFEA00;
             --neon-glow: #ffea00;
             --dark-bg: #050505;
-            --electric-cyan: #00f3ff;
+            /* PALETA DE ENERGÍA PURA */
+            --pure-white: #ffffff;
+            --gold-surge: #ffaa00; /* Oro intenso para el calor */
+            --spark-color: #ffffcc;
         }
 
         body {
@@ -75,7 +78,7 @@
             100% { opacity: 0.9; transform: scale(1.15); }
         }
 
-        /* --- LOGO CENTRAL --- */
+        /* --- CONTENEDOR LOGO & CHISPAS --- */
         .logo-container {
             z-index: 10;
             display: flex;
@@ -84,59 +87,99 @@
             width: 100%;
             height: 100%;
             perspective: 1000px;
+            position: relative; /* Necesario para las chispas absolutas */
+            
+            /* Levitación suave del conjunto */
+            animation: float-levitate 6s ease-in-out infinite;
         }
 
         .logo-img {
-            max-width: 95%; /* Aumentado ligeramente el límite responsivo */
-            width: 1100px;  /* Aumentado de 800px a 1100px para más zoom */
+            max-width: 95%;
+            width: 1100px;
             height: auto;
             display: block;
-            
-            /* AJUSTE DE POSICIÓN: Bajamos el logo un poco más (14vh) */
             margin-top: 14vh; 
 
-            /* Animaciones: Levitación suave + Glitch eléctrico */
-            /* CAMBIO: Aumentado el ciclo de electric-surge a 12s para que repita menos seguido */
-            animation: 
-                float-levitate 6s ease-in-out infinite,
-                electric-surge 12s infinite; 
+            /* ANIMACIÓN DE ENERGÍA ACTUALIZADA: 100% ORO Y LUZ */
+            /* 20s ciclo para mantener el suspenso */
+            animation: electric-surge-gold 20s infinite; 
             
             filter: drop-shadow(0 0 30px rgba(0,0,0,0.9));
             will-change: transform, filter;
+            position: relative;
+            z-index: 2;
         }
 
-        /* 1. Levitación Suave */
+        /* --- SISTEMA DE CHISPAS (NUEVO) --- */
+        .spark {
+            position: absolute;
+            background: var(--spark-color);
+            border-radius: 50%;
+            pointer-events: none;
+            opacity: 0;
+            z-index: 3;
+            box-shadow: 0 0 10px var(--neon-yellow), 0 0 20px white;
+        }
+
+        /* Configuramos 3 chispas diferentes */
+        .s1 { width: 4px; height: 4px; top: 55%; left: 60%; animation: shoot-spark-1 20s infinite; }
+        .s2 { width: 6px; height: 3px; top: 50%; left: 55%; animation: shoot-spark-2 20s infinite; }
+        .s3 { width: 3px; height: 3px; top: 60%; left: 65%; animation: shoot-spark-3 20s infinite; }
+
         @keyframes float-levitate {
-            0%, 100% { 
-                transform: translateY(0px) scale(1); 
-            }
-            50% { 
-                transform: translateY(-30px) scale(1.03); 
-            }
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-30px); }
         }
 
-        /* 2. Sobrecarga eléctrica (AJUSTADA PARA CICLO LARGO) */
-        @keyframes electric-surge {
-            /* Mantiene la calma durante el 96% del tiempo (aprox 11.5 segundos) */
-            0%, 96%, 100% {
+        /* Animación del Logo: Arco Voltaico Dorado */
+        @keyframes electric-surge-gold {
+            0%, 95%, 100% {
                 filter: drop-shadow(0 0 30px rgba(0,0,0,0.9)) brightness(1);
+                transform: scale(1);
             }
-            /* El glitch ocurre muy rápido entre el 97% y el 99% (aprox 0.4 segundos) */
+            /* Inicio del cortocircuito */
+            96% {
+                transform: scale(1.02) translateX(-2px) rotate(-1deg);
+                /* Sepia alto + brillo para tono cobrizo/dorado */
+                filter: drop-shadow(0 0 40px var(--gold-surge)) brightness(1.4) sepia(0.8);
+            }
+            /* ¡DETONACIÓN! */
+            96.5% {
+                transform: scale(1.06) translateX(4px) rotate(1deg);
+                /* Flash blanco puro en el centro, borde dorado */
+                filter: drop-shadow(0 0 100px var(--pure-white)) drop-shadow(0 0 30px var(--neon-yellow)) brightness(3) contrast(2);
+            }
+            /* Réplica */
             97% {
-                /* Inicio del glitch */
-                transform: translateY(-30px) translateX(-5px) scale(1.05) skewX(-3deg);
-                filter: drop-shadow(5px 0 50px var(--neon-yellow)) brightness(1.5) hue-rotate(10deg);
+                transform: scale(1.03) translateX(-2px);
+                filter: drop-shadow(0 0 60px var(--gold-surge)) brightness(1.5);
             }
             98% {
-                /* Flash Cian/Blanco */
-                transform: translateY(-30px) translateX(5px) scale(1.05) skewX(3deg);
-                filter: drop-shadow(-5px 0 60px var(--electric-cyan)) brightness(2) contrast(1.3);
-            }
-            99% {
-                transform: translateY(-30px) translateX(0) scale(1.03);
-                filter: drop-shadow(0 0 40px var(--neon-yellow)) brightness(1.2);
+                transform: scale(1);
+                filter: drop-shadow(0 0 40px var(--neon-yellow)) brightness(1.1);
             }
         }
+
+        /* Animaciones de las Chispas (Sincronizadas al 96.5%) */
+        @keyframes shoot-spark-1 {
+            0%, 96% { opacity: 0; transform: translate(0, 0); }
+            96.5% { opacity: 1; transform: translate(0, 0) scale(1.5); }
+            98% { opacity: 0; transform: translate(100px, -80px) scale(0.1); } /* Sale arriba derecha */
+            100% { opacity: 0; }
+        }
+        @keyframes shoot-spark-2 {
+            0%, 96% { opacity: 0; transform: translate(0, 0); }
+            96.5% { opacity: 1; transform: translate(0, 0) scale(1.5); }
+            98% { opacity: 0; transform: translate(-80px, 60px) scale(0.1); } /* Sale abajo izquierda */
+            100% { opacity: 0; }
+        }
+        @keyframes shoot-spark-3 {
+            0%, 96% { opacity: 0; transform: translate(0, 0); }
+            96.5% { opacity: 1; transform: translate(0, 0) scale(2); }
+            98% { opacity: 0; transform: translate(50px, 120px) scale(0.1); } /* Cae chispazo */
+            100% { opacity: 0; }
+        }
+
     </style>
 </head>
 <body>
@@ -152,9 +195,14 @@
         <div class="lightning-bolt bolt-6"></div>
     </div>
 
-    <!-- Logo Central -->
+    <!-- Logo Central y Partículas -->
     <div class="logo-container">
-        <!-- Mantenemos .png basado en tu captura de pantalla anterior -->
+        <!-- Chispas que saltan con la animación -->
+        <div class="spark s1"></div>
+        <div class="spark s2"></div>
+        <div class="spark s3"></div>
+        
+        <!-- Logo -->
         <img src="Cofrarneta_Logo.png" alt="Cofrarneta TV Logo" class="logo-img">
     </div>
 
